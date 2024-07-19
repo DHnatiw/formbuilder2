@@ -1,8 +1,8 @@
 import React from 'react';
 
-const ButtonControl = ({ label }) => {
+const ButtonControl = ({ label, className }) => {
     return (
-        <button className="bg-blue-500 text-white px-4 py-2">
+        <button className={`px-4 py-2 w-full h-full ${className}`}>
             {label || 'Button'}
         </button>
     );

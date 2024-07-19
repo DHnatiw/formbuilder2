@@ -1,9 +1,17 @@
 /** @type {import('tailwindcss').Config} */
 const tailwindConfig = {
-    content: ['./index.html', './src/**/*.{js,jsx,ts,tsx}'],
+    content: [
+        './public/**/*.html',
+        './src/**/*.{js,jsx,ts,tsx,vue}',
+    ],
     theme: {
         extend: {},
     },
+    safelist: [
+        {
+            pattern: /^(bg|text|border)-/,
+        }
+    ],
     plugins: [],
 };
 

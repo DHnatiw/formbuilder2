@@ -7,7 +7,7 @@ import CheckBoxControl from './controls/CheckBox';
 import RadioButtonControl from './controls/RadioButton';
 import DropdownControl from './controls/Dropdown';
 
-const Control = ({ control, onUpdateControl }) => {
+const Control = ({ control, onUpdateControl, onSelectControl }) => {
     const handleDragStop = (e, d) => {
         onUpdateControl(control.id, { x: d.x, y: d.y });
     };
@@ -20,20 +20,24 @@ const Control = ({ control, onUpdateControl }) => {
         });
     };
 
+    const handleClick = () => {
+        onSelectControl(control.id);
+    };
+
     const renderControl = () => {
         switch (control.type) {
             case 'Button':
-                return <ButtonControl />;
+                return <ButtonControl {...control.properties} />;
             case 'TextBox':
-                return <TextBoxControl />;
+                return <TextBoxControl {...control.properties} />;
             case 'Image':
-                return <ImageControl />;
+                return <ImageControl {...control.properties} />;
             case 'CheckBox':
-                return <CheckBoxControl />;
+                return <CheckBoxControl {...control.properties} />;
             case 'RadioButton':
-                return <RadioButtonControl />;
+                return <RadioButtonControl {...control.properties} />;
             case 'Dropdown':
-                return <DropdownControl />;
+                return <DropdownControl {...control.properties} />;
             default:
                 return <div>{control.type}</div>;
         }
@@ -46,9 +50,16 @@ const Control = ({ control, onUpdateControl }) => {
             onDragStop={handleDragStop}
             onResizeStop={handleResizeStop}
             bounds="parent"
+            className="absolute border-2 border-transparent hover:border-blue-500 hover:shadow-lg cursor-move rounded transition duration-300 ease-in-out"
+            style={{ transitionProperty: 'border, box-shadow' }}
             grid={[20, 20]}
+            onClick={handleClick}
+            minWidth={50} // Minimum width of standard control
+            minHeight={30} // Minimum height of standard control
+            dragGrid={[10, 10]} // Snap to 10px grid for dragging
+            resizeGrid={[10, 10]} // Snap to 10px grid for resizing
         >
-            <div className="bg-white shadow-md p-2">
+            <div className="w-full h-full flex items-center justify-center">
                 {renderControl()}
             </div>
         </Rnd>
