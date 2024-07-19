@@ -4,7 +4,7 @@ const TextBoxControl = ({ placeholder, className }) => {
     return (
         <input
             type="text"
-            className={`border p-2 w-full ${className}`}
+            className={`border p-2 w-full h-full ${className}`}
             placeholder={placeholder || 'TextBox'}
         />
     );

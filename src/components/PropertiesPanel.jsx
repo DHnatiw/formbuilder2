@@ -4,66 +4,111 @@ const PropertiesPanel = ({ control, updateProperties }) => {
     const [properties, setProperties] = useState(control.properties || {});
 
     useEffect(() => {
-        setProperties(control.properties || {});
-    }, [control]);
+        const defaultProperties = controlPropertiesConfig[control.type]?.reduce((acc, prop) => {
+            if (prop.defaultValue !== undefined) {
+                acc[prop.name] = prop.defaultValue;
+            }
+            return acc;
+        }, {});
+        setProperties({ ...defaultProperties, ...control.properties });
+    }, [control]); 
+
+    // useEffect(() => {
+    //     setProperties(control.properties || {});
+    // }, [control]); // Update when control changes
+
+    const controlPropertiesConfig = {
+        Button: [
+            { name: 'label', label: 'Label', type: 'text' },
+            { name: 'className', label: 'Tailwind', type: 'text' },
+            { name: 'onClick', label: 'On Click', type: 'function' }, // Handle function props later
+        ],
+        TextBox: [
+            { name: 'placeholder', label: 'Placeholder', type: 'text' },
+            { name: 'value', label: 'Default Value', type: 'text' },
+            { name: 'className', label: 'Tailwind', type: 'text' },
+        ],
+        Image: [
+            { name: 'src', label: 'Image URL', type: 'text' },
+            { name: 'alt', label: 'Alt Text', type: 'text' },
+            { name: 'className', label: 'Tailwind', type: 'text' },
+        ],
+        CheckBox: [
+            { name: 'label', label: 'Label', type: 'text' },
+            { name: 'checked', label: 'Checked', type: 'boolean' }, // For default checked state
+            { name: 'className', label: 'Tailwind', type: 'text' },
+        ],
+        RadioButton: [
+            { name: 'label', label: 'Label', type: 'text' },
+            { name: 'value', label: 'Value', type: 'text' },
+            { name: 'className', label: 'Tailwind', type: 'text' },
+        ],
+        Dropdown: [
+            {
+                name: 'options',
+                label: 'Options',
+                type: 'array',
+                defaultValue: [
+                    { "label": "Option 1", "value": "option1" },
+                    { "label": "Option 2", "value": "option2" },
+                    { "label": "Option 3", "value": "option3" }
+                ]
+            },
+            { name: 'value', label: 'Default Value', type: 'text' },
+        ],
+
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        const newProperties = { ...properties, [name]: value };
+        let newProperties = { ...properties, [name]: value };
+
+        if (name === 'options') {
+            try {
+                newProperties[name] = JSON.parse(value);
+            } catch (error) {
+                console.error('Error parsing options:', error);
+                // Handle error or notify the user
+            }
+        }
+
         setProperties(newProperties);
         updateProperties(newProperties);
+    };
+
+    const renderPropertyInput = (propertyConfig) => {
+        const { name, label, type } = propertyConfig;
+
+        return (
+            <div className="mb-2" key={name}>
+                <label className="block mb-1">{label}</label>
+                {type === 'text' && (
+                    <input
+                        type="text"
+                        name={name}
+                        value={properties[name] || ''}
+                        onChange={handleChange}
+                        className="border p-2 w-full"
+                    />
+                )}
+                {type === 'array' && (
+                    <textarea
+                        name={name}
+                        value={JSON.stringify(properties[name] || [], null, 2)}
+                        onChange={handleChange}
+                        className="border p-2 w-full"
+                        rows="4"
+                    />
+                )}
+                {/* Add input fields for other property types as needed */}
+            </div>
+        );
     };
 
     return (
         <div className="p-2 bg-gray-100 border rounded mt-2">
             <h3 className="font-bold mb-2">Properties</h3>
-            {control.type === 'Button' && (
-                <div className="mb-2">
-                    <label className="block mb-1">Label</label>
-                    <input
-                        type="text"
-                        name="label"
-                        value={properties.label || ''}
-                        onChange={handleChange}
-                        className="border p-2 w-full"
-                    />
-                </div>
-            )}
-            {control.type === 'TextBox' && (
-                <div className="mb-2">
-                    <label className="block mb-1">Placeholder</label>
-                    <input
-                        type="text"
-                        name="placeholder"
-                        value={properties.placeholder || ''}
-                        onChange={handleChange}
-                        className="border p-2 w-full"
-                    />
-                </div>
-            )}
-            {control.type === 'Image' && (
-                <div className="mb-2">
-                    <label className="block mb-1">Image URL</label>
-                    <input
-                        type="text"
-                        name="src"
-                        value={properties.src || ''}
-                        onChange={handleChange}
-                        className="border p-2 w-full"
-                    />
-                </div>
-            )}
-            <div className="mb-2">
-                <label className="block mb-1">Tailwind CSS Classes</label>
-                <input
-                    type="text"
-                    name="className"
-                    value={properties.className || ''}
-                    onChange={handleChange}
-                    className="border p-2 w-full"
-                    placeholder="e.g., bg-red-500 text-white p-4"
-                />
-            </div>
+            {control && controlPropertiesConfig[control.type]?.map(renderPropertyInput)}
         </div>
     );
 };
